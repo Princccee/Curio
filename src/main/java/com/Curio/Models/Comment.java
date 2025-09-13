@@ -32,6 +32,6 @@ public class Comment extends BaseModel {
 
     // Comment can also have replies
     @OneToMany
-    @JoinTable(name = "parent_commend_id")
+    @JoinColumn(name = "parent_comment_id")
     private Set<Comment> replies;
 }
