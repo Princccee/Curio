@@ -18,19 +18,33 @@ public class User extends BaseModel {
     private String password;
     private String bio;
 
-    // Every user can follow many tags and many tags can be followed by many user.
-    // So we gonna have many to many relationship and we will have a common join table with with the user id and tag id on which they will be joined
-    @ManyToMany()
+    // --- User <-> Tag Many-to-Many ---
+    @ManyToMany
     @JoinTable(
             name = "user_tags",
-            joinColumns = @JoinColumn(name = "user_id"), // user if from user table
-            inverseJoinColumns = @JoinColumn(name = "tag_id") // tag id from tag table
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tags> tags;
+    private Set<Tags> tags = new HashSet<>();
 
+    // --- User <-> Question One-to-Many ---
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Question> questions;
+    private Set<Question> questions = new HashSet<>();
 
+    // --- User <-> Answer One-to-Many ---
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Answer> answers;
+    private Set<Answer> answers = new HashSet<>();
+
+    // --- Self-referencing Many-to-Many for Followers/Following ---
+    @ManyToMany
+    @JoinTable(
+            name = "user_followers",
+            joinColumns = @JoinColumn(name = "user_id"),            // user who follows
+            inverseJoinColumns = @JoinColumn(name = "follower_id")  // user being followed
+    )
+    private Set<User> following = new HashSet<>();
+
+    @ManyToMany(mappedBy = "following")
+    private Set<User> followers = new HashSet<>();
 }
+

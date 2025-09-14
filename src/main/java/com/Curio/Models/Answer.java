@@ -13,6 +13,8 @@ public class Answer extends BaseModel {
     @Column(columnDefinition = "TEXT")
     private String body;
 
+    private boolean isAccepted;
+
     // Many answer can belong to one question
     @ManyToOne
     @JoinColumn(name = "question_id")
