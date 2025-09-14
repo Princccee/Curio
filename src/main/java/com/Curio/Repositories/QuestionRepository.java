@@ -15,7 +15,7 @@ import java.util.Set;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    Page<Question> findByTagsIn(Set<Tags> tags, Pageable pageable);
+    Page<Question> findByTagsIn(Set<String> tags, Pageable pageable);
 
     List<Question> findAllQuestionsByUserId(Long userId);
 

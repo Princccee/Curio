@@ -1,5 +1,6 @@
 package com.Curio.Services;
 
+import com.Curio.DTOs.PostAnswerDTO;
 import com.Curio.Models.Answer;
 import com.Curio.Models.Question;
 import com.Curio.Models.User;
@@ -24,16 +25,16 @@ public class AnswerService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public Answer postAnswer(Long questionId, Long userId, String body) {
-        Question question = questionRepository.findById(questionId)
+    public Answer postAnswer(PostAnswerDTO request) {
+        Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Create an answer to a question
         Answer answer = Answer.builder()
-                .body(body)
+                .body(request.getAnswer())
                 .question(question)
                 .user(user)
                 .isAccepted(false) // by default make it false

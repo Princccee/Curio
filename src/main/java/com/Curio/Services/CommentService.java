@@ -1,5 +1,6 @@
 package com.Curio.Services;
 
+import com.Curio.DTOs.PostCommentDTO;
 import com.Curio.Models.Answer;
 import com.Curio.Models.Comment;
 import com.Curio.Models.Question;
@@ -29,16 +30,16 @@ public class CommentService {
     private AnswerRepository answerRepository;
 
     // Add comment to question
-    public Comment addCommentToQuestion(Long userId, Long questionId, String text) {
-        User user = userRepository.findById(userId)
+    public Comment addCommentToQuestion(PostCommentDTO request) {
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Question question = questionRepository.findById(questionId)
+        Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         Comment comment = Comment.builder()
                 .user(user)
                 .question(question)
-                .text(text)
+                .text(request.getComment())
                 .build();
 
         return commentRepository.save(comment);

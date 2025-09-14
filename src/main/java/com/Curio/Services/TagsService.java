@@ -35,10 +35,10 @@ public class TagsService {
         return tagsRepository.findAll();
     }
 
-    // Get questions by tag
-    public List<Question> getQuestionsByTag(Long tagId) {
-        Tags tag = tagsRepository.findById(tagId)
-                .orElseThrow(() -> new RuntimeException("Tag not found"));
-        return questionRepository.findByTagsIn(Set.of(tag), null).getContent(); // pageable null = all
-    }
+//    // Get questions by tag
+//    public List<Question> getQuestionsByTag(Long tagId) {
+//        Tags tag = tagsRepository.findById(tagId)
+//                .orElseThrow(() -> new RuntimeException("Tag not found"));
+//        return questionRepository.findByTagsIn(Set.of(tag), null).getContent(); // pageable null = all
+//    }
 }

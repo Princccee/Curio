@@ -70,7 +70,7 @@ public class QuestionService {
         return questionRepository.findAllQuestionsByUserId(userId);
     }
 
-    public Page<Question> getQuestionsByTags(Set<Tags> tags, Pageable pageable) {
+    public Page<Question> getQuestionsByTags(Set<String> tags, Pageable pageable) {
         return questionRepository.findByTagsIn(tags, pageable);
     }
 
@@ -80,6 +80,10 @@ public class QuestionService {
 
     public Page<Question> getAllQuestions(Pageable pageable) {
         return questionRepository.findAll(pageable);
+    }
+
+    public List<Question> getQuestionByUser(Long userId){
+        return questionRepository.findAllQuestionsByUserId(userId);
     }
 
 }
