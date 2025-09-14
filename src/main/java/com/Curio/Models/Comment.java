@@ -30,6 +30,10 @@ public class Comment extends BaseModel {
     @JoinColumn(name = "answer_id")
     private Answer answer;
 
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
     // Comment can also have replies
     @OneToMany
     @JoinColumn(name = "parent_comment_id")
