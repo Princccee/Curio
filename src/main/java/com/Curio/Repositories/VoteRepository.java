@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
+    Integer countByQuestionIdAndUpvote(Long quesId, Boolean upVote);
+
+    Integer countByAnswerIdAndUpvote(Long ansId, Boolean upVote);
 }

@@ -23,4 +23,5 @@ public class Tags extends BaseModel{
     // Every tag can belong to multiple questions as well
     @ManyToMany(mappedBy = "tags")
     private Set<Question> questions;
+
 }

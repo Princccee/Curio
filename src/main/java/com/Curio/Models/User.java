@@ -25,15 +25,15 @@ public class User extends BaseModel {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tags> tags = new HashSet<>();
+    private Set<Tags> tags;
 
     // --- User <-> Question One-to-Many ---
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Question> questions = new HashSet<>();
+    private Set<Question> questions;
 
     // --- User <-> Answer One-to-Many ---
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Answer> answers = new HashSet<>();
+    private Set<Answer> answers;
 
     // --- Self-referencing Many-to-Many for Followers/Following ---
     @ManyToMany
@@ -42,9 +42,9 @@ public class User extends BaseModel {
             joinColumns = @JoinColumn(name = "user_id"),            // user who follows
             inverseJoinColumns = @JoinColumn(name = "follower_id")  // user being followed
     )
-    private Set<User> following = new HashSet<>();
+    private Set<User> following;
 
     @ManyToMany(mappedBy = "following")
-    private Set<User> followers = new HashSet<>();
+    private Set<User> followers;
 }
 
