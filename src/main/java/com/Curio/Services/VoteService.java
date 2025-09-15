@@ -1,5 +1,6 @@
 package com.Curio.Services;
 
+import com.Curio.DTOs.VoteDTO;
 import com.Curio.Models.Answer;
 import com.Curio.Models.Question;
 import com.Curio.Models.User;
@@ -27,32 +28,32 @@ public class VoteService {
     private AnswerRepository answerRepository;
 
     // Upvote/Downvote a question
-    public Vote voteQuestion(Long userId, Long questionId, boolean upvote) {
-        User user = userRepository.findById(userId)
+    public Vote voteQuestion(VoteDTO request) {
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Question question = questionRepository.findById(questionId)
+        Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         Vote vote = Vote.builder()
                 .user(user)
                 .question(question)
-                .upvote(upvote)
+                .upvote(request.isVote())
                 .build();
 
         return voteRepository.save(vote);
     }
 
     // Upvote/Downvote an answer
-    public Vote voteAnswer(Long userId, Long answerId, boolean upvote) {
-        User user = userRepository.findById(userId)
+    public Vote voteAnswer(VoteDTO request) {
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Answer answer = answerRepository.findById(answerId)
+        Answer answer = answerRepository.findById(request.getAnsId())
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
         Vote vote = Vote.builder()
                 .user(user)
                 .answer(answer)
-                .upvote(upvote)
+                .upvote(request.isVote())
                 .build();
 
         return voteRepository.save(vote);
