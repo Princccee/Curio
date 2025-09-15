@@ -4,6 +4,9 @@ import com.Curio.Configurations.JwtUtil;
 import com.Curio.DTOs.LoginDTO;
 import com.Curio.DTOs.RegisterDTO;
 import com.Curio.DTOs.UpdateProfileDTO;
+import com.Curio.DTOs.UserResponseDTO;
+import com.Curio.Models.Answer;
+import com.Curio.Models.Question;
 import com.Curio.Models.User;
 import com.Curio.Repositories.TagsRepository;
 import com.Curio.Repositories.UserRepository;
@@ -14,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -61,7 +65,8 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public User updateProfile(UpdateProfileDTO requets){
+    public UserResponseDTO updateProfile(UpdateProfileDTO requets){
+//        System.out.println(requets);
         User user = userRepository.findById(requets.getUserId())
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
 
@@ -70,7 +75,18 @@ public class UserService {
         user.setBio(requets.getBio());
         user.setEmail(requets.getEmail());
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        UserResponseDTO responseDTO = UserResponseDTO.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .followersIds(user.getFollowers().stream().map(User::getId).collect(Collectors.toSet()))
+                .followingsIds(user.getFollowing().stream().map(User::getId).collect(Collectors.toSet()))
+                .questions(user.getQuestions().stream().map(Question::getTitle).collect(Collectors.toSet()))
+                .answerIds(user.getAnswers().stream().map(Answer::getId).collect(Collectors.toSet()))
+                .build();
+
+        return responseDTO;
     }
 
     @Transactional
