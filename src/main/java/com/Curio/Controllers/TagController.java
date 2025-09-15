@@ -4,6 +4,8 @@ import java.util.*;
 import com.Curio.Models.Tags;
 import com.Curio.Services.TagsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,12 +16,12 @@ public class TagController {
     private TagsService tagsService;
 
     @PostMapping("/create/{tagName}")
-    public Tags createTag(@RequestParam String tagName){
-        return tagsService.createTag(tagName);
+    public ResponseEntity<Tags> createTag(@RequestParam String tagName){
+        return ResponseEntity.status(HttpStatus.CREATED).body(tagsService.createTag(tagName));
     }
 
     @GetMapping()
-    public List<Tags> getAllTags(){
-        return tagsService.getAllTags();
+    public ResponseEntity<List<Tags>> getAllTags(){
+        return ResponseEntity.ok(tagsService.getAllTags());
     }
 }
