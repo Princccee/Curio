@@ -6,9 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
     // We want to have limited number of answer to be showed for a question and that can be achieved by pagination mechanism. Now using Page every question will have a limited set of answers at once.
-    Page<Answer> findByQuestionId(Long questionId, Pageable pagable);
+    List<Answer> findByQuestionId(Long questionId);
 
 }
