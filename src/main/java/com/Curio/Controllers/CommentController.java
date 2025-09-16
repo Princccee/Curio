@@ -1,5 +1,6 @@
 package com.Curio.Controllers;
 
+import com.Curio.DTOs.CommentResponse;
 import com.Curio.DTOs.PostCommentDTO;
 import com.Curio.Models.Comment;
 import com.Curio.Services.CommentService;
@@ -17,13 +18,18 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<Comment> addComment(@RequestBody PostCommentDTO request) {
+    @PostMapping("/question")
+    public ResponseEntity<CommentResponse> addCommentQuestion(@RequestBody PostCommentDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addCommentToQuestion(request));
     }
 
+    @PostMapping("/answer")
+    public ResponseEntity<CommentResponse> addCommentAnswer(@RequestBody PostCommentDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addCommentToAnswer(request));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Comment> editComment(@PathVariable Long id, @RequestParam Long userId, @RequestParam String body) {
+    public ResponseEntity<CommentResponse> editComment(@PathVariable Long id, @RequestParam Long userId, @RequestParam String body) {
         return ResponseEntity.ok(commentService.editComment(id, userId, body));
     }
 
