@@ -5,9 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class EditQuestionDTO {
-    private Long quesId;
-    private Long userId;
+public class QuestionResponse {
     private String title;
     private String body;
 }
