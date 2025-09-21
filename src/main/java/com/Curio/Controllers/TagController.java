@@ -1,6 +1,7 @@
 package com.Curio.Controllers;
 
 import java.util.*;
+
 import com.Curio.Models.Tags;
 import com.Curio.Services.TagsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class TagController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Tags>> getAllTags(){
+    public ResponseEntity<List<String>> getAllTags(){
         return ResponseEntity.ok(tagsService.getAllTags());
     }
 }
