@@ -19,12 +19,11 @@ public class TagsService {
 
     // Create new tag (if it doesn’t exist)
     public Tags createTag(String tagName) {
-        Tags tag = tagsRepository.findByTagName(tagName);
-        if (tag == null) {
-            tag = Tags.builder()
-                    .tagName(tagName)
-                    .build();
-        }
+        Tags tag =  tagsRepository.findByTagName(tagName)
+                .orElse(Tags.builder()
+                        .tagName(tagName)
+                        .build());
+        tagsRepository.save(tag);
         return tag;
     }
 

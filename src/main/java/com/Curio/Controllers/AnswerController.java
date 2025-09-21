@@ -1,5 +1,6 @@
 package com.Curio.Controllers;
 
+import com.Curio.DTOs.AnswerResponse;
 import com.Curio.DTOs.PostAnswerDTO;
 import com.Curio.Models.Answer;
 import com.Curio.Services.AnswerService;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/answers")
 public class AnswerController {
@@ -21,17 +24,17 @@ public class AnswerController {
 
     // Post a new answer
     @PostMapping
-    public ResponseEntity<Answer> postAnswer(@Valid @RequestBody PostAnswerDTO request) {
-        Answer savedAnswer = answerService.postAnswer(request);
+    public ResponseEntity<AnswerResponse> postAnswer(@Valid @RequestBody PostAnswerDTO request) {
+        AnswerResponse savedAnswer = answerService.postAnswer(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedAnswer);
     }
 
     // Edit an answer
     @PutMapping("/{id}")
-    public ResponseEntity<Answer> editAnswer(@PathVariable Long id,
+    public ResponseEntity<AnswerResponse> editAnswer(@PathVariable Long id,
                                              @RequestParam Long userId,
-                                             @RequestBody String newBody) {
-        Answer updatedAnswer = answerService.editAnswer(id, userId, newBody);
+                                             @RequestParam String newBody) {
+        AnswerResponse updatedAnswer = answerService.editAnswer(id, userId, newBody);
         return ResponseEntity.ok(updatedAnswer);
     }
 
@@ -45,22 +48,18 @@ public class AnswerController {
 
     // Get answers for a question (paginated, newest first)
     @GetMapping("/question/{questionId}")
-    public ResponseEntity<Page<Answer>> getAnswersByQuestion(
-            @PathVariable Long questionId,
-            @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
-            Pageable pageable) {
+    public ResponseEntity<List<AnswerResponse>> getAnswersByQuestion(
+            @PathVariable Long questionId) {
 
-        Page<Answer> answers = answerService.getAnswersByQuestion(questionId, pageable);
+        List<AnswerResponse> answers = answerService.getAnswersByQuestion(questionId);
         return ResponseEntity.ok(answers);
     }
 
     // Mark answer as accepted
     @PutMapping("/{id}/accept")
-    public ResponseEntity<Answer> markAsAccepted(@PathVariable Long id,
-                                                 @RequestParam Long userId,
-                                                 @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
-                                                     Pageable pageable) {
-        Answer acceptedAnswer = answerService.markAsAccepted(id, userId, pageable);
-        return ResponseEntity.ok(acceptedAnswer);
+    public ResponseEntity<?> markAsAccepted(@PathVariable Long id,
+                                                 @RequestParam Long userId) {
+        Answer acceptedAnswer = answerService.markAsAccepted(id, userId);
+        return ResponseEntity.ok("Successfully accepted");
     }
 }

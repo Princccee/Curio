@@ -1,5 +1,6 @@
 package com.Curio.Repositories;
 
+import com.Curio.DTOs.QuestionResponse;
 import com.Curio.Models.Question;
 import com.Curio.Models.Tags;
 import org.springframework.data.domain.Page;
@@ -15,10 +16,12 @@ import java.util.Set;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
-    Page<Question> findByTagsIn(Set<String> tags, Pageable pageable);
+    @Query("SELECT q FROM Question q JOIN q.tags t WHERE t.tagName IN :tagNames")
+    Set<Question> findByTagNames(@Param("tagNames") Set<String> tagNames);
 
     List<Question> findAllQuestionsByUserId(Long userId);
 
     // search by keyword
-    Page<Question> findByTitleContainingIgnoreCaseOrBodyContainingIgnoreCase(String title, String body, Pageable pageable);
+    List<Question> findByTitleContainingIgnoreCaseOrBodyContainingIgnoreCase(String title, String body);
+
 }

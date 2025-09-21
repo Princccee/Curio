@@ -2,6 +2,7 @@ package com.Curio.Controllers;
 
 import com.Curio.DTOs.EditQuestionDTO;
 import com.Curio.DTOs.PostQuestionDTO;
+import com.Curio.DTOs.QuestionResponse;
 import com.Curio.Models.Question;
 import com.Curio.Services.QuestionService;
 import jakarta.validation.Valid;
@@ -24,16 +25,15 @@ public class QuestionController {
 
     // Post a new question
     @PostMapping
-    public ResponseEntity<Question> postQuestion(@Valid @RequestBody PostQuestionDTO request) {
-        Question savedQuestion = questionService.postQuestion(request);
+    public ResponseEntity<QuestionResponse> postQuestion(@RequestBody PostQuestionDTO request) {
+        QuestionResponse savedQuestion = questionService.postQuestion(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedQuestion);
     }
 
     // Edit a question
-    @PutMapping("/{id}")
-    public ResponseEntity<Question> editQuestion(@PathVariable Long id,
-                                                 @Valid @RequestBody EditQuestionDTO request) {
-        Question updated = questionService.editQuestion(request);
+    @PutMapping("/edit")
+    public ResponseEntity<EditQuestionDTO> editQuestion(@RequestBody EditQuestionDTO request) {
+        EditQuestionDTO updated = questionService.editQuestion(request);
         return ResponseEntity.ok(updated);
     }
 
@@ -47,24 +47,28 @@ public class QuestionController {
 
     // Get questions by user
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Question>> getQuestionsByUser(@PathVariable Long userId) {
-        List<Question> questions = questionService.getQuestionByUser(userId);
+    public ResponseEntity<List<QuestionResponse>> getQuestionsByUser(@PathVariable Long userId) {
+        List<QuestionResponse> questions = questionService.getQuestionsByUser(userId);
         return ResponseEntity.ok(questions);
     }
 
     // Get questions by tags with pagination
     @GetMapping("/tags")
-    public ResponseEntity<Page<Question>> getQuestionsByTags(@RequestParam Set<String> tags,
-                                                             Pageable pageable) {
-        Page<Question> questions = questionService.getQuestionsByTags(tags, pageable);
+    public ResponseEntity<Set<QuestionResponse>> getQuestionsByTags(@RequestParam Set<String> tags) {
+        Set<QuestionResponse> questions = questionService.getQuestionsByTags(tags);
         return ResponseEntity.ok(questions);
     }
 
     // Search questions
     @GetMapping("/search")
-    public ResponseEntity<Page<Question>> searchQuestions(@RequestParam String keyword,
-                                                          Pageable pageable) {
-        Page<Question> results = questionService.searchQuestions(keyword, pageable);
+    public ResponseEntity<List<QuestionResponse>> searchQuestions(@RequestParam String keyword) {
+        List<QuestionResponse> results = questionService.searchQuestions(keyword);
         return ResponseEntity.ok(results);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<QuestionResponse>> getAllQuestions(){
+        List<QuestionResponse> questions = questionService.getAllQuestions();
+        return ResponseEntity.ok(questions);
     }
 }

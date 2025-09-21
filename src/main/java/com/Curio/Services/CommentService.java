@@ -1,5 +1,6 @@
 package com.Curio.Services;
 
+import com.Curio.DTOs.CommentResponse;
 import com.Curio.DTOs.PostCommentDTO;
 import com.Curio.Models.Answer;
 import com.Curio.Models.Comment;
@@ -30,7 +31,7 @@ public class CommentService {
     private AnswerRepository answerRepository;
 
     // Add comment to question
-    public Comment addCommentToQuestion(PostCommentDTO request) {
+    public CommentResponse addCommentToQuestion(PostCommentDTO request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Question question = questionRepository.findById(request.getQuesId())
@@ -42,27 +43,39 @@ public class CommentService {
                 .text(request.getComment())
                 .build();
 
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+
+        return CommentResponse.builder()
+                .quesId(comment.getQuestion().getId())
+                .quesTitle(comment.getQuestion().getTitle())
+                .comment(comment.getText())
+                .build();
     }
 
     // Add comment to answer
-    public Comment addCommentToAnswer(Long userId, Long answerId, String text) {
-        User user = userRepository.findById(userId)
+    public CommentResponse addCommentToAnswer(PostCommentDTO request) {
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Answer answer = answerRepository.findById(answerId)
+        Answer answer = answerRepository.findById(request.getAnsId())
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
         Comment comment = Comment.builder()
                 .user(user)
                 .answer(answer)
-                .text(text)
+                .text(request.getComment())
                 .build();
 
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+
+        return CommentResponse.builder()
+                .ansId(comment.getAnswer().getId())
+                .answer(comment.getAnswer().getBody())
+                .comment(comment.getText())
+                .build();
     }
 
     // Edit comment
-    public Comment editComment(Long commentId, Long userId, String newText) {
+    public CommentResponse editComment(Long commentId, Long userId, String newText) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
@@ -71,7 +84,12 @@ public class CommentService {
         }
 
         comment.setText(newText);
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+
+        return CommentResponse.builder()
+                .commentId(comment.getId())
+                .comment(comment.getText())
+                .build();
     }
 
     // Delete comment

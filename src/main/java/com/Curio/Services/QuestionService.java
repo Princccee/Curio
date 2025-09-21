@@ -2,18 +2,23 @@ package com.Curio.Services;
 
 import com.Curio.DTOs.EditQuestionDTO;
 import com.Curio.DTOs.PostQuestionDTO;
+import com.Curio.DTOs.QuestionResponse;
 import com.Curio.Models.Question;
 import com.Curio.Models.Tags;
 import com.Curio.Models.User;
 import com.Curio.Repositories.QuestionRepository;
+import com.Curio.Repositories.TagsRepository;
 import com.Curio.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -21,26 +26,50 @@ public class QuestionService {
     private QuestionRepository questionRepository;
 
     @Autowired
+    private TagsService tagsService;
+
+    @Autowired
+    private TagsRepository tagsRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     // Post a question
-    public Question postQuestion(PostQuestionDTO request) {
+    public QuestionResponse postQuestion(PostQuestionDTO request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
+
+        //Create a set of tags:
+        Set<Tags> tags = new HashSet<>();
+        for(String tagName : request.getTags()){
+            // if tag already exits in the DB then don't create it, just add it to the set
+            // else create a new tag and add it to the set
+            Tags tag = tagsRepository.findByTagName(tagName)
+                    .orElse(tagsService.createTag(tagName));
+
+            tags.add(tag);
+        }
 
         Question question = Question.builder()
                 .title(request.getTitle())
                 .body(request.getBody())
                 .user(user)
-                .tags(request.getTags()) // make sure PostQuestionDTO has Set<Tags>
+                .tags(tags) // make sure PostQuestionDTO has Set<Tags>
                 .build();
 
-        return questionRepository.save(question);
+        questionRepository.save(question);
+
+        QuestionResponse response = QuestionResponse.builder()
+                .title(question.getTitle())
+                .body(question.getBody())
+                .build();
+        return response;
     }
 
     // Edit question
-    public Question editQuestion(EditQuestionDTO request) {
-        Question question = questionRepository.findById(request.getQid())
+    public EditQuestionDTO editQuestion(EditQuestionDTO request) {
+        System.out.println(request);
+        Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         if (!question.getUser().getId().equals(request.getUserId())) {
@@ -49,7 +78,14 @@ public class QuestionService {
 
         question.setTitle(request.getTitle());
         question.setBody(request.getBody());
-        return questionRepository.save(question);
+        questionRepository.save(question);
+
+        return EditQuestionDTO.builder()
+                .quesId(question.getId())
+                .userId(question.getUser().getId())
+                .title(question.getTitle())
+                .body(question.getBody())
+                .build();
     }
 
     // Delete Question
@@ -64,26 +100,65 @@ public class QuestionService {
         questionRepository.delete(question);
     }
 
-    public List<Question> getQuestionsByUser(Long userId) {
+    public List<QuestionResponse> getQuestionsByUser(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
-        return questionRepository.findAllQuestionsByUserId(userId);
+        List<Question> questions = questionRepository.findAllQuestionsByUserId(userId);
+
+        List<QuestionResponse> result = new ArrayList<>();
+        for(Question question : questions){
+            QuestionResponse response = QuestionResponse.builder()
+                    .title(question.getTitle())
+                    .body(question.getBody())
+                    .build();
+            result.add(response);
+        }
+        return result;
     }
 
-    public Page<Question> getQuestionsByTags(Set<String> tags, Pageable pageable) {
-        return questionRepository.findByTagsIn(tags, pageable);
+    public Set<QuestionResponse> getQuestionsByTags(Set<String> tags) {
+        Set<Question> questions = questionRepository.findByTagNames(tags);
+
+        return questions.stream()
+                .map(q -> QuestionResponse.builder()
+                        .title(q.getTitle())
+                        .body(q.getBody())
+                        .build())
+                .collect(Collectors.toSet());
     }
 
-    public Page<Question> searchQuestions(String keyword, Pageable pageable) {
-        return questionRepository.findByTitleContainingIgnoreCaseOrBodyContainingIgnoreCase(keyword, keyword, pageable);
+
+    public List<QuestionResponse> searchQuestions(String keyword) {
+        List<Question> questions =  questionRepository.findByTitleContainingIgnoreCaseOrBodyContainingIgnoreCase(keyword, keyword);
+
+        List<QuestionResponse> response = new ArrayList<>();
+        for(Question question : questions){
+            QuestionResponse ques = QuestionResponse.builder()
+                    .title(question.getTitle())
+                    .body(question.getBody())
+                    .build();
+            response.add(ques);
+        }
+        return response;
     }
 
-    public Page<Question> getAllQuestions(Pageable pageable) {
-        return questionRepository.findAll(pageable);
+    public List<QuestionResponse> getAllQuestions() {
+        List<Question> questions = questionRepository.findAll();
+
+        List<QuestionResponse> response = new ArrayList<>();
+
+        for(Question question : questions){
+            QuestionResponse q = QuestionResponse.builder()
+                    .title(question.getTitle())
+                    .body(question.getBody())
+                    .build();
+            response.add(q);
+        }
+        return response;
     }
 
-    public List<Question> getQuestionByUser(Long userId){
-        return questionRepository.findAllQuestionsByUserId(userId);
-    }
+//    public List<Question> getQuestionByUser(Long userId){
+//        return questionRepository.findAllQuestionsByUserId(userId);
+//    }
 
 }

@@ -1,5 +1,6 @@
 package com.Curio.Services;
 
+import com.Curio.DTOs.AnswerResponse;
 import com.Curio.DTOs.PostAnswerDTO;
 import com.Curio.Models.Answer;
 import com.Curio.Models.Question;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +27,7 @@ public class AnswerService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public Answer postAnswer(PostAnswerDTO request) {
+    public AnswerResponse postAnswer(PostAnswerDTO request) {
         Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
@@ -40,10 +42,18 @@ public class AnswerService {
                 .isAccepted(false) // by default make it false
                 .build();
 
-        return answerRepository.save(answer);
+        answerRepository.save(answer);
+
+        return AnswerResponse.builder()
+                .quesId(answer.getQuestion().getId())
+                .userId(answer.getUser().getId())
+                .title(answer.getQuestion().getTitle())
+                .body(answer.getQuestion().getBody())
+                .ans(answer.getBody())
+                .build();
     }
 
-    public Answer editAnswer(Long answerId, Long userId, String newBody) {
+    public AnswerResponse editAnswer(Long answerId, Long userId, String newBody) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
@@ -51,8 +61,17 @@ public class AnswerService {
             throw new RuntimeException("Unauthorized: You can only edit your own answers");
         }
 
+        // Edit the answer posted
         answer.setBody(newBody);
-        return answerRepository.save(answer);
+        answerRepository.save(answer);
+
+        return AnswerResponse.builder()
+                .quesId(answer.getQuestion().getId())
+                .userId(answer.getUser().getId())
+                .title(answer.getQuestion().getTitle())
+                .body(answer.getQuestion().getBody())
+                .ans(answer.getBody())
+                .build();
     }
 
     public void deleteAnswer(Long answerId, Long userId) {
@@ -66,14 +85,27 @@ public class AnswerService {
         answerRepository.delete(answer);
     }
 
-    public Page<Answer> getAnswersByQuestion(Long questionId, Pageable page) {
+    public List<AnswerResponse> getAnswersByQuestion(Long questionId) {
         questionRepository.findById(questionId)
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
-        return answerRepository.findByQuestionId(questionId, page);
+        List<Answer> answers = answerRepository.findByQuestionId(questionId);
+
+        List<AnswerResponse> answerResponses = new ArrayList<>();
+        for(Answer answer : answers){
+            AnswerResponse ans = AnswerResponse.builder()
+                    .quesId(answer.getQuestion().getId())
+                    .title(answer.getQuestion().getTitle())
+                    .body(answer.getQuestion().getBody())
+                    .ans(answer.getBody())
+                    .build();
+            answerResponses.add(ans);
+        }
+
+        return answerResponses;
     }
 
-    public Answer markAsAccepted(Long answerId, Long userId, Pageable page) {
+    public Answer markAsAccepted(Long answerId, Long userId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
@@ -84,7 +116,7 @@ public class AnswerService {
         }
 
         // Unmark previously accepted answer if exists
-        Page<Answer> answers = answerRepository.findByQuestionId(question.getId(), page);
+        List<Answer> answers = answerRepository.findByQuestionId(question.getId());
         for (Answer a : answers) {
             if (a.isAccepted()) {
                 a.setAccepted(false);

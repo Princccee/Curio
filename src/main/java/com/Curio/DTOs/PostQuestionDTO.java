@@ -11,5 +11,5 @@ public class PostQuestionDTO {
     private Long userId;
     private String title;
     private String body;
-    private Set<Tags> tags;
+    private Set<String> tags;
 }
