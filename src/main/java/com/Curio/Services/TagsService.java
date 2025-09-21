@@ -6,6 +6,7 @@ import com.Curio.Repositories.TagsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,8 +29,15 @@ public class TagsService {
     }
 
     // Get all tags
-    public List<Tags> getAllTags() {
-        return tagsRepository.findAll();
+    public List<String> getAllTags() {
+        List<Tags> tags =  tagsRepository.findAll();
+
+        List<String> tagNames = new ArrayList<>();
+
+        for(Tags tag : tags)
+            tagNames.add(tag.getTagName());
+
+        return tagNames;
     }
 
 //    // Get questions by tag
