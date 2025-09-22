@@ -35,7 +35,7 @@ public class QuestionService {
     private UserRepository userRepository;
 
     // Post a question
-    public QuestionResponse postQuestion(PostQuestionDTO request) {
+    public Question postQuestion(PostQuestionDTO request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
 
@@ -57,17 +57,11 @@ public class QuestionService {
                 .tags(tags) // make sure PostQuestionDTO has Set<Tags>
                 .build();
 
-        questionRepository.save(question);
-
-        QuestionResponse response = QuestionResponse.builder()
-                .title(question.getTitle())
-                .body(question.getBody())
-                .build();
-        return response;
+        return questionRepository.save(question);
     }
 
     // Edit question
-    public EditQuestionDTO editQuestion(EditQuestionDTO request) {
+    public Question editQuestion(EditQuestionDTO request) {
         System.out.println(request);
         Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
@@ -78,14 +72,7 @@ public class QuestionService {
 
         question.setTitle(request.getTitle());
         question.setBody(request.getBody());
-        questionRepository.save(question);
-
-        return EditQuestionDTO.builder()
-                .quesId(question.getId())
-                .userId(question.getUser().getId())
-                .title(question.getTitle())
-                .body(question.getBody())
-                .build();
+        return questionRepository.save(question);
     }
 
     // Delete Question
@@ -100,20 +87,20 @@ public class QuestionService {
         questionRepository.delete(question);
     }
 
-    public List<QuestionResponse> getQuestionsByUser(Long userId) {
+    public List<Question> getQuestionsByUser(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
         List<Question> questions = questionRepository.findAllQuestionsByUserId(userId);
 
-        List<QuestionResponse> result = new ArrayList<>();
-        for(Question question : questions){
-            QuestionResponse response = QuestionResponse.builder()
-                    .title(question.getTitle())
-                    .body(question.getBody())
-                    .build();
-            result.add(response);
-        }
-        return result;
+//        List<QuestionResponse> result = new ArrayList<>();
+//        for(Question question : questions){
+//            QuestionResponse response = QuestionResponse.builder()
+//                    .title(question.getTitle())
+//                    .body(question.getBody())
+//                    .build();
+//            result.add(response);
+//        }
+        return questions;
     }
 
     public Set<QuestionResponse> getQuestionsByTags(Set<String> tags) {

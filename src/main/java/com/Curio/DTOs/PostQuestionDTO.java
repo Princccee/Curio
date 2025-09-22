@@ -1,12 +1,14 @@
 package com.Curio.DTOs;
 
 import com.Curio.Models.Tags;
+import lombok.Builder;
 import lombok.Data;
 import org.aspectj.apache.bcel.generic.Tag;
 
 import java.util.Set;
 
 @Data
+@Builder
 public class PostQuestionDTO {
     private Long userId;
     private String title;

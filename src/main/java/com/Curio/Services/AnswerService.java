@@ -27,7 +27,7 @@ public class AnswerService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public AnswerResponse postAnswer(PostAnswerDTO request) {
+    public Answer postAnswer(PostAnswerDTO request) {
         Question question = questionRepository.findById(request.getQuesId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
@@ -42,18 +42,10 @@ public class AnswerService {
                 .isAccepted(false) // by default make it false
                 .build();
 
-        answerRepository.save(answer);
-
-        return AnswerResponse.builder()
-                .quesId(answer.getQuestion().getId())
-                .userId(answer.getUser().getId())
-                .title(answer.getQuestion().getTitle())
-                .body(answer.getQuestion().getBody())
-                .ans(answer.getBody())
-                .build();
+        return answerRepository.save(answer);
     }
 
-    public AnswerResponse editAnswer(Long answerId, Long userId, String newBody) {
+    public Answer editAnswer(Long answerId, Long userId, String newBody) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
@@ -63,15 +55,7 @@ public class AnswerService {
 
         // Edit the answer posted
         answer.setBody(newBody);
-        answerRepository.save(answer);
-
-        return AnswerResponse.builder()
-                .quesId(answer.getQuestion().getId())
-                .userId(answer.getUser().getId())
-                .title(answer.getQuestion().getTitle())
-                .body(answer.getQuestion().getBody())
-                .ans(answer.getBody())
-                .build();
+        return answerRepository.save(answer);
     }
 
     public void deleteAnswer(Long answerId, Long userId) {
@@ -85,24 +69,11 @@ public class AnswerService {
         answerRepository.delete(answer);
     }
 
-    public List<AnswerResponse> getAnswersByQuestion(Long questionId) {
+    public List<Answer> getAnswersByQuestion(Long questionId) {
         questionRepository.findById(questionId)
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
-        List<Answer> answers = answerRepository.findByQuestionId(questionId);
-
-        List<AnswerResponse> answerResponses = new ArrayList<>();
-        for(Answer answer : answers){
-            AnswerResponse ans = AnswerResponse.builder()
-                    .quesId(answer.getQuestion().getId())
-                    .title(answer.getQuestion().getTitle())
-                    .body(answer.getQuestion().getBody())
-                    .ans(answer.getBody())
-                    .build();
-            answerResponses.add(ans);
-        }
-
-        return answerResponses;
+        return answerRepository.findByQuestionId(questionId);
     }
 
     public Answer markAsAccepted(Long answerId, Long userId) {
