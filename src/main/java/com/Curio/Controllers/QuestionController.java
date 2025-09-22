@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,15 +27,27 @@ public class QuestionController {
     // Post a new question
     @PostMapping
     public ResponseEntity<QuestionResponse> postQuestion(@RequestBody PostQuestionDTO request) {
-        QuestionResponse savedQuestion = questionService.postQuestion(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedQuestion);
+        Question savedQuestion = questionService.postQuestion(request);
+
+        QuestionResponse response = QuestionResponse.builder()
+                .title(savedQuestion.getTitle())
+                .body(savedQuestion.getBody())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     // Edit a question
     @PutMapping("/edit")
     public ResponseEntity<EditQuestionDTO> editQuestion(@RequestBody EditQuestionDTO request) {
-        EditQuestionDTO updated = questionService.editQuestion(request);
-        return ResponseEntity.ok(updated);
+        Question updated = questionService.editQuestion(request);
+
+        EditQuestionDTO response = EditQuestionDTO.builder()
+                .quesId(updated.getId())
+                .userId(updated.getUser().getId())
+                .title(updated.getTitle())
+                .body(updated.getBody())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     // Delete a question
@@ -48,8 +61,18 @@ public class QuestionController {
     // Get questions by user
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<QuestionResponse>> getQuestionsByUser(@PathVariable Long userId) {
-        List<QuestionResponse> questions = questionService.getQuestionsByUser(userId);
-        return ResponseEntity.ok(questions);
+        List<Question> questions = questionService.getQuestionsByUser(userId);
+
+        List<QuestionResponse> result = new ArrayList<>();
+        for(Question question : questions){
+            QuestionResponse response = QuestionResponse.builder()
+                    .title(question.getTitle())
+                    .body(question.getBody())
+                    .build();
+            result.add(response);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     // Get questions by tags with pagination
