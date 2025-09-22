@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,8 +26,17 @@ public class AnswerController {
     // Post a new answer
     @PostMapping
     public ResponseEntity<AnswerResponse> postAnswer(@Valid @RequestBody PostAnswerDTO request) {
-        AnswerResponse savedAnswer = answerService.postAnswer(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedAnswer);
+        Answer savedAnswer = answerService.postAnswer(request);
+
+        AnswerResponse response =  AnswerResponse.builder()
+                .quesId(savedAnswer.getQuestion().getId())
+                .userId(savedAnswer.getUser().getId())
+                .title(savedAnswer.getQuestion().getTitle())
+                .body(savedAnswer.getQuestion().getBody())
+                .ans(savedAnswer.getBody())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     // Edit an answer
@@ -34,8 +44,17 @@ public class AnswerController {
     public ResponseEntity<AnswerResponse> editAnswer(@PathVariable Long id,
                                              @RequestParam Long userId,
                                              @RequestParam String newBody) {
-        AnswerResponse updatedAnswer = answerService.editAnswer(id, userId, newBody);
-        return ResponseEntity.ok(updatedAnswer);
+        Answer updatedAnswer = answerService.editAnswer(id, userId, newBody);
+
+        AnswerResponse response =  AnswerResponse.builder()
+                .quesId(updatedAnswer.getQuestion().getId())
+                .userId(updatedAnswer.getUser().getId())
+                .title(updatedAnswer.getQuestion().getTitle())
+                .body(updatedAnswer.getQuestion().getBody())
+                .ans(updatedAnswer.getBody())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     // Delete an answer
@@ -51,8 +70,20 @@ public class AnswerController {
     public ResponseEntity<List<AnswerResponse>> getAnswersByQuestion(
             @PathVariable Long questionId) {
 
-        List<AnswerResponse> answers = answerService.getAnswersByQuestion(questionId);
-        return ResponseEntity.ok(answers);
+        List<Answer> answers = answerService.getAnswersByQuestion(questionId);
+
+        List<AnswerResponse> answerResponses = new ArrayList<>();
+        for(Answer answer : answers){
+            AnswerResponse ans = AnswerResponse.builder()
+                    .quesId(answer.getQuestion().getId())
+                    .title(answer.getQuestion().getTitle())
+                    .body(answer.getQuestion().getBody())
+                    .ans(answer.getBody())
+                    .build();
+            answerResponses.add(ans);
+        }
+
+        return ResponseEntity.ok(answerResponses);
     }
 
     // Mark answer as accepted
